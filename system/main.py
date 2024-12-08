@@ -291,6 +291,7 @@ if __name__ == "__main__":
     
     # Prune args
     parser.add_argument("--prune", type=bool, default=False)
+    parser.add_argument("--pruning_percentage", type=float, default=0.2)
 
     args = parser.parse_args()
 

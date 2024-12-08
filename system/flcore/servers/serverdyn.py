@@ -19,7 +19,7 @@ import copy
 import time
 import torch
 from flcore.clients.clientdyn import clientDyn
-from flcore.clinets.clientdyn_prune import PrunedFedDynClient
+from flcore.clients.clientdyn_prune import PrunedFedDynClient
 from flcore.servers.serverbase import Server
 from tqdm import tqdm
 from threading import Thread

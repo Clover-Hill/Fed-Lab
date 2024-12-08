@@ -20,9 +20,26 @@ class PrunedFedDynClient(Client):
         self.alpha = new_alpha
 
     def prune_model(self):
-        # 全局剪枝基于权重的绝对值
-        all_weights = torch.cat([param.view(-1) for param in self.model.parameters()])
-        threshold = torch.quantile(all_weights.abs(), self.pruning_percentage)
+        all_weights = []
+
+        for param in self.model.parameters():
+            if param.requires_grad:
+                all_weights.append(param.data.abs().view(-1))
+
+        # Flatten the list of weights into a single tensor
+        all_weights = torch.cat(all_weights)
+
+        # Avoid memory overload by computing the quantile in chunks if needed
+        num_elements = all_weights.numel()
+        if num_elements > 1e7:  # Threshold for large tensors, adjust as needed
+            all_weights_sorted, _ = torch.sort(all_weights)
+            threshold_idx = int(self.pruning_percentage * num_elements)
+            threshold = all_weights_sorted[threshold_idx]
+        else:
+            # If tensor is small enough, use torch.quantile
+            threshold = torch.quantile(all_weights, self.pruning_percentage)
+
+        # Perform pruning by setting weights below the threshold to 0
         with torch.no_grad():
             for param in self.model.parameters():
                 param.data = torch.where(param.data.abs() < threshold, torch.tensor(0.0).to(param.device), param.data)
@@ -65,7 +82,7 @@ class PrunedFedDynClient(Client):
         if self.learning_rate_decay:
             self.learning_rate_scheduler.step()
 
-        # 模型剪枝
+        # Prune the model
         self.prune_model()
 
         self.train_time_cost['num_rounds'] += 1
