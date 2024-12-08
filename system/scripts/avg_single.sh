@@ -1,13 +1,13 @@
-CUDA_DEVICE=3
+CUDA_DEVICE=2
 
 python -m \
     main \
     --dataset MNIST \
     --model CNN \
     --algorithm FedAvg \
-    --batch_size 1200 \
-    --batch_num_per_client 40 \
     --global_rounds 1000 \
+    --batch_size 800 \
+    --batch_num_per_client 40 \
     --device_id ${CUDA_DEVICE} \
     --use_wandb True \
     --wandb_project Fed-Lab \

@@ -19,6 +19,7 @@ import copy
 import time
 import torch
 from flcore.clients.clientdyn import clientDyn
+from flcore.clinets.clientdyn_prune import PrunedFedDynClient
 from flcore.servers.serverbase import Server
 from tqdm import tqdm
 from threading import Thread
@@ -30,7 +31,10 @@ class FedDyn(Server):
 
         # select slow clients
         self.set_slow_clients()
-        self.set_clients(clientDyn)
+        if args.prune:
+            self.set_clients(PrunedFedDynClient)
+        else:
+            self.set_clients(clientDyn)
 
         print(f"\nJoin ratio / total clients: {self.join_ratio} / {self.num_clients}")
         print("Finished creating server and clients.")
@@ -39,6 +43,10 @@ class FedDyn(Server):
         self.Budget = []
 
         self.alpha = args.alpha
+        if args.adaptive:
+            self.alpha_update = args.alpha_update
+        else:
+            self.alpha_update = 0
         
         self.server_state = copy.deepcopy(args.model)
         for param in self.server_state.parameters():
@@ -74,6 +82,8 @@ class FedDyn(Server):
 
             if self.auto_break and self.check_done(acc_lss=[self.rs_test_acc], top_cnt=self.top_cnt):
                 break
+            
+            self.alpha += self.alpha_update
 
         print("\nBest accuracy.")
         # self.print_(max(self.rs_test_acc), max(
@@ -85,13 +95,6 @@ class FedDyn(Server):
 
         self.save_results()
         self.save_global_model()
-
-        if self.num_new_clients > 0:
-            self.eval_new_clients = True
-            self.set_new_clients(clientDyn)
-            print(f"\n-------------Fine tuning round-------------")
-            print("\nEvaluate new clients")
-            self.evaluate()
 
     def add_parameters(self, client_model):
         for server_param, client_param in zip(self.global_model.parameters(), client_model.parameters()):

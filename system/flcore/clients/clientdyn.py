@@ -27,11 +27,17 @@ class clientDyn(Client):
 
         self.alpha = args.alpha
 
+        self.id = id
+
         self.global_model_vector = None
         old_grad = copy.deepcopy(self.model)
         old_grad = model_parameter_vector(old_grad)
         self.old_grad = torch.zeros_like(old_grad)
         
+        if args.adaptive:
+            self.alpha_update = args.alpha_update
+        else:
+            self.alpha_update = 0
 
     def train(self):
         trainloader = self.load_train_data()
@@ -76,7 +82,8 @@ class clientDyn(Client):
 
         self.train_time_cost['num_rounds'] += 1
         self.train_time_cost['total_cost'] += time.time() - start_time
-
+        
+        self.alpha += self.alpha_update
 
     def set_parameters(self, model):
         for new_param, old_param in zip(model.parameters(), self.model.parameters()):
