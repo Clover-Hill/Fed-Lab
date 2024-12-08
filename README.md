@@ -5,6 +5,7 @@ by Maximus Cao
 
 - Add **wandb** support for better logging
 - Add client distributed training for **Multi-GPU** training
+- Add **Adaptive Regularization** technique for FedDyn algorithm
 - Add **client pruning** for better communication efficiency
 
 ---
@@ -36,6 +37,29 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 python -m \
     --batch_num_per_client 6 \
     --num_clients 200 \
     --alpha 1.0 \
+    --learning_rate_decay True \
+    --learning_rate_decay_gamma 0.98 \
+```
+
+### Adaptive Regularization
+
+See script *system/scripts/dyn_adaptive.sh*
+
+```
+CUDA_DEVICE=1
+
+python -m \
+    main \
+    --dataset Cifar10-noniid-pat \
+    --model ResNet34 \
+    --algorithm FedDyn \
+    --global_rounds 250 \
+    --batch_size 800 \
+    --batch_num_per_client 40 \
+    --device_id ${CUDA_DEVICE} \
+    --adaptive True \
+    --alpha 1 \
+    --alpha_upper 10 \
     --learning_rate_decay True \
     --learning_rate_decay_gamma 0.98 \
 ```
