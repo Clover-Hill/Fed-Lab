@@ -16,4 +16,4 @@ python -m \
     --pruning_percentage 0.4 \
     --use_wandb True \
     --wandb_project Fed-Lab \
-    --wandb_run fedavg-resnet-cifar-prune-0.4 \
+    --wandb_run feddyn-resnet-cifar-prune-0.4 \
