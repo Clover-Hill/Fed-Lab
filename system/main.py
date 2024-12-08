@@ -77,12 +77,8 @@ from flcore.trainmodel.transformer import *
 from utils.result_utils import average_data
 from utils.mem_utils import MemReporter
 
-logger = logging.getLogger()
-logger.setLevel(logging.ERROR)
-
 warnings.simplefilter("ignore")
 torch.manual_seed(0)
-
 
 def run(args):
 
