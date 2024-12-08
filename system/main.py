@@ -21,6 +21,7 @@ import torch
 import argparse
 import os
 import time
+from loguru import logger
 import warnings
 import numpy as np
 import torchvision
@@ -383,6 +384,12 @@ def run(args):
     # Global average
     average_data(dataset=args.dataset, algorithm=args.algorithm, goal=args.goal, times=args.times)
 
+    # Log run stats
+    logger.info(f"Dataset: {args.dataset}")
+    logger.info(f"Algorithm: {args.algorithm}")
+    logger.info(f"Model: {model_str}")
+    logger.info(f"Alpha: {args.alpha}")
+    logger.info(f"Global rounds: {args.global_rounds}")
     print("All done!")
 
     reporter.report()
@@ -497,6 +504,10 @@ if __name__ == "__main__":
     parser.add_argument('-mo', "--momentum", type=float, default=0.1)
     parser.add_argument('-klw', "--kl_weight", type=float, default=0.0)
 
+    # Wandb logging
+    parser.add_argument("--use_wandb", type=bool, default=False)
+    parser.add_argument("--wandb_project", type=str, default="Fed-Lab")
+    parser.add_argument("--wandb_run", type=str, default=None)
 
     args = parser.parse_args()
 
@@ -511,6 +522,15 @@ if __name__ == "__main__":
         print(arg, '=',getattr(args, arg))
     print("=" * 50)
 
+    if args.use_wandb:
+        import wandb
+        wandb.init(project=args.wandb_project, name=args.wandb_run)
+        wandb.config.model = args.model
+        wandb.config.algorithm = args.algorithm
+        wandb.config.dataset = args.dataset
+        wandb.config.global_rounds = args.global_rounds
+        wandb.config.batch_size = args.batch_size
+    
     # with torch.profiler.profile(
     #     activities=[
     #         torch.profiler.ProfilerActivity.CPU,

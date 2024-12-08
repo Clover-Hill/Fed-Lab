@@ -267,6 +267,10 @@ class Server(object):
         # self.print_(test_acc, train_acc, train_loss)
         print("Std Test Accurancy: {:.4f}".format(np.std(accs)))
         print("Std Test AUC: {:.4f}".format(np.std(aucs)))
+        
+        import wandb 
+        if wandb.run is not None:
+            wandb.log({"test_acc": test_acc, "test_auc": test_auc, "train_loss": train_loss})
 
     def print_(self, test_acc, test_auc, train_loss):
         print("Average Test Accurancy: {:.4f}".format(test_acc))

@@ -21,7 +21,6 @@ import numpy as np
 import time
 from flcore.clients.clientbase import Client
 
-
 class clientDyn(Client):
     def __init__(self, args, id, train_samples, test_samples, **kwargs):
         super().__init__(args, id, train_samples, test_samples, **kwargs)

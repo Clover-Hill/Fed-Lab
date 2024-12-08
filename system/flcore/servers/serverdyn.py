@@ -20,6 +20,7 @@ import time
 import torch
 from flcore.clients.clientdyn import clientDyn
 from flcore.servers.serverbase import Server
+from tqdm import tqdm
 from threading import Thread
 
 
@@ -43,9 +44,8 @@ class FedDyn(Server):
         for param in self.server_state.parameters():
             param.data = torch.zeros_like(param.data)
 
-
     def train(self):
-        for i in range(self.global_rounds+1):
+        for i in tqdm(range(self.global_rounds+1),desc="Global rounds"):
             s_t = time.time()
             self.selected_clients = self.select_clients()
             self.send_models()
